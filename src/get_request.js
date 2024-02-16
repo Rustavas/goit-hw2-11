@@ -1,28 +1,22 @@
-function getRequest(data) {
-  const BASE_URL = 'https://pixabay.com/api/';
-  // const API_KEY = '35530318-c832a4dcd48fc070f5c50cd79';
-  // const q = 'inputValue';
-  // const image_type = 'photo';
-  // const orientation = 'horizontal';
-  // const safesearch = 'true';
+import axios from "axios"
+import {itemPerPage} from "./variables"
+
+async function getRequest(data, currentPage=1) {
+  const BASE_URL = 'https://pixaba.com/api/';
+  
   const searchParams = new URLSearchParams({
     key: '35530318-c832a4dcd48fc070f5c50cd79',
     q: data,
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: 'true',
-    per_page: '40',
-    page: '1'
+    per_page: itemPerPage,
   });
 
-  // return fetch(`${BASE_URL}?key=${API_KEY}&q=${data}&image_type=${image_type}&orientation=${orientation}&safesearch=${safesearch}`)
-  return fetch(`${BASE_URL}?${searchParams}`)
+  return await axios.get(`${BASE_URL}?${searchParams}&page=${currentPage}`)
     .then(resp => {
-      if (!resp.ok) {
-        throw new Error(resp.statusText)
-      }
-      return resp.json()
+      return resp.data
     })
 }
 
-export {getRequest};
+export { getRequest };
