@@ -1,9 +1,12 @@
-import axios from "axios";
+import axios, { formToJSON } from "axios";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-import { searchForm, gallery, loadMoreBtn, target, itemPerPage } from "./variables";
+import SimpleLightbox from "simplelightbox";
+import { searchForm, gallery, target, itemPerPage } from "./variables";
 import { getRequest } from "./get_request";
 import { createMarkup } from "./create_markup";
-
+import { onError} from "./onError.js";
+import { lightbox } from "./simplelightbox.js";
+import "simplelightbox/dist/simple-lightbox.min.css";
 searchForm.addEventListener('submit', onSubmit);
 
 let options = {
@@ -21,6 +24,15 @@ function onLoad(entries, observer) {
       getRequest(inputValue, currentPage)
         .then(({ hits, totalHits }) => {
           gallery.insertAdjacentHTML('beforeend', createMarkup(hits).join(''))
+          lightbox.refresh()
+          const { height: cardHeight } = document
+            .querySelector(".gallery")
+            .firstElementChild.getBoundingClientRect();
+
+          window.scrollBy({
+            top: cardHeight * 2,
+            behavior: "smooth",
+          });
           if (currentPage === totalHits / itemPerPage) {
             observer.unobserve(target);
           }
@@ -29,7 +41,6 @@ function onLoad(entries, observer) {
         .catch(err => console.log(err))
     }
   })
-
 }
 
 async function onSubmit(evt) {
@@ -39,16 +50,17 @@ async function onSubmit(evt) {
 
   await getRequest(inputValue)
     .then(({ hits, totalHits }) => {
+
       if (hits.length === 0) {
         Notify.failure('Sorry, there are no images matching your search query. Please try again.');
         return
       };
       Notify.success(`'Hooray! We found ${totalHits} images.'`);
-      gallery.insertAdjacentHTML('beforeend', createMarkup(hits).join(''))
+      gallery.innerHTML = createMarkup(hits).join('');
       observer.observe(target);
+     
     })
-    .catch(err => {return Notify.failure('Sorry, there are no images matching your search query. Please try again.')} 
-    )
-  // .finally(() => inputValue = "");
+    .catch(onError)
+    .finally(() => searchForm.reset());
 }
 
