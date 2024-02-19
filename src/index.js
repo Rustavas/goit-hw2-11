@@ -7,6 +7,7 @@ import { createMarkup } from "./create_markup";
 import { onError} from "./onError.js";
 import { lightbox } from "./simplelightbox.js";
 import "simplelightbox/dist/simple-lightbox.min.css";
+
 searchForm.addEventListener('submit', onSubmit);
 
 let options = {
@@ -14,8 +15,9 @@ let options = {
   rootMargin: '300px',
   threshold: 1.0
 }
-let currentPage = 1;
+
 let observer = new IntersectionObserver(onLoad, options);
+let currentPage = 1;
 function onLoad(entries, observer) {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
